@@ -1,12 +1,12 @@
 name: Build OpenWrt VeloCloud
 
 on:
-  workflow_dispatch: # Mengizinkan Anda memicu proses ini secara manual kapan saja
+  workflow_dispatch:
 
 jobs:
   build:
     name: Compile Firmware
-    runs-on: ubuntu-22.04 # Menggunakan server Ubuntu versi stabil
+    runs-on: ubuntu-22.04
 
     steps:
       - name: 1. Checkout Repository
@@ -22,25 +22,31 @@ jobs:
           git submodule init
           git submodule update
 
-      - name: 4. Update & Install Feeds (Komponen OpenWrt)
+      - name: 4. Update & Install Feeds
         run: |
+          cd trunk
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
       - name: 5. Konfigurasi Firmware
         run: |
-          # Menggunakan file openwrt.config bawaan dari repositori
-          cp openwrt.config .config
+          cp openwrt.config trunk/.config
+          cd trunk
           make defconfig
 
-      - name: 6. Download Packages (Mengunduh file pendukung)
-        run: make download -j8
+      - name: 6. Download Packages
+        run: |
+          cd trunk
+          make download -j8
 
-      - name: 7. Proses Kompilasi (Ini memakan waktu cukup lama)
-        run: make -j$(nproc) V=s
+      - name: 7. Proses Kompilasi
+        run: |
+          cd trunk
+          make -j$(nproc) V=s
 
       - name: 8. Upload Hasil Kompilasi
         uses: actions/upload-artifact@v4
         with:
           name: compiled-firmware
-          path: bin/targets/
+          path: trunk/bin/targets/
+
