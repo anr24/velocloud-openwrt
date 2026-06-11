@@ -22,17 +22,17 @@ jobs:
           git submodule init
           git submodule update
 
-      - name: 4. Fix SVN Format & Update Feeds
+      - name: 4. Hapus Metadata SVN & Update Feeds
         run: |
           cd trunk
-          # Mencari semua folder 'patches' dan membuat struktur .svn/text-base secara otomatis
-          find . -type d -name "patches" -exec mkdir -p {}/.svn/text-base \;
+          # Menghapus semua folder .svn agar tidak ada lagi error validasi
+          find . -type d -name ".svn" -exec rm -rf {} +
           
-          # Menjalankan upgrade setelah semua struktur tersedia
-          svn upgrade
-          
+          # Update feeds seperti biasa (karena database SVN sudah hilang, 
+          # proses akan berjalan lebih lancar tanpa error format)
           ./scripts/feeds update -a
           ./scripts/feeds install -a
+
 
 
       - name: 5. Konfigurasi Firmware
