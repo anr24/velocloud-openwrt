@@ -1,0 +1,46 @@
+name: Build OpenWrt VeloCloud
+
+on:
+  workflow_dispatch: # Mengizinkan Anda memicu proses ini secara manual kapan saja
+
+jobs:
+  build:
+    name: Compile Firmware
+    runs-on: ubuntu-22.04 # Menggunakan server Ubuntu versi stabil
+
+    steps:
+      - name: 1. Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 2. Install Build Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential libncurses5-dev zlib1g-dev gawk git ccache gettext libssl-dev xsltproc wget unzip python3
+
+      - name: 3. Initialize & Update Submodules
+        run: |
+          git submodule init
+          git submodule update
+
+      - name: 4. Update & Install Feeds (Komponen OpenWrt)
+        run: |
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: 5. Konfigurasi Firmware
+        run: |
+          # Menggunakan file openwrt.config bawaan dari repositori
+          cp openwrt.config .config
+          make defconfig
+
+      - name: 6. Download Packages (Mengunduh file pendukung)
+        run: make download -j8
+
+      - name: 7. Proses Kompilasi (Ini memakan waktu cukup lama)
+        run: make -j$(nproc) V=s
+
+      - name: 8. Upload Hasil Kompilasi
+        uses: actions/upload-artifact@v4
+        with:
+          name: compiled-firmware
+          path: bin/targets/
