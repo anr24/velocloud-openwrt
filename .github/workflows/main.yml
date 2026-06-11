@@ -25,6 +25,7 @@ jobs:
       - name: 4. Fix SVN Format & Update Feeds
         run: |
           cd trunk
+          mkdir -p toolchain/binutils/patches/.svn/text-base
           svn upgrade
           ./scripts/feeds update -a
           ./scripts/feeds install -a
