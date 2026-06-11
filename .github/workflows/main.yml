@@ -25,10 +25,14 @@ jobs:
       - name: 4. Fix SVN Format & Update Feeds
         run: |
           cd trunk
+          # Membuat folder kosong yang hilang agar SVN tidak komplain
           mkdir -p toolchain/binutils/patches/.svn/text-base
+          # Tambahkan perintah ini jika masih error di folder lain
+          mkdir -p toolchain/gcc/patches/.svn/text-base
           svn upgrade
           ./scripts/feeds update -a
           ./scripts/feeds install -a
+
 
       - name: 5. Konfigurasi Firmware
         run: |
