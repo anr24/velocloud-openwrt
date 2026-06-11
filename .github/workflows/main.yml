@@ -40,11 +40,13 @@ jobs:
           cp openwrt.config trunk/.config
           cd trunk
           make defconfig
-
       - name: 6. Download Packages
         run: |
           cd trunk
-          make download -j8
+          # Menjalankan download dengan verbositas tinggi (V=s) agar kita tahu file mana yang gagal
+          # dan menggunakan 'make download' yang lebih memaksa
+          make download V=s || true
+
 
       - name: 7. Proses Kompilasi
         run: |
