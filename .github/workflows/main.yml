@@ -15,7 +15,7 @@ jobs:
       - name: 2. Install Build Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential libncurses5-dev zlib1g-dev gawk git ccache gettext libssl-dev xsltproc wget unzip python3 subversion
+          sudo apt-get install -y build-essential libncurses5-dev zlib1g-dev gawk git ccache gettext libssl-dev xsltproc wget unzip python3 subversion intltool libintl-perl
 
       - name: 3. Initialize & Update Submodules
         run: |
@@ -25,32 +25,29 @@ jobs:
       - name: 4. Hapus Metadata SVN & Update Feeds
         run: |
           cd trunk
-          # Menghapus semua folder .svn agar tidak ada lagi error validasi
+          # Menghapus semua folder .svn agar tidak ada lagi error format/validasi
           find . -type d -name ".svn" -exec rm -rf {} +
           
-          # Update feeds seperti biasa (karena database SVN sudah hilang, 
-          # proses akan berjalan lebih lancar tanpa error format)
+          # Update feeds
           ./scripts/feeds update -a
           ./scripts/feeds install -a
-
-
 
       - name: 5. Konfigurasi Firmware
         run: |
           cp openwrt.config trunk/.config
           cd trunk
           make defconfig
+
       - name: 6. Download Packages
         run: |
           cd trunk
-          # Menjalankan download dengan verbositas tinggi (V=s) agar kita tahu file mana yang gagal
-          # dan menggunakan 'make download' yang lebih memaksa
+          # Menggunakan || true agar proses tidak berhenti jika ada file yang gagal diunduh
           make download V=s || true
-
 
       - name: 7. Proses Kompilasi
         run: |
           cd trunk
+          # Kompilasi inti
           make -j$(nproc) V=s
 
       - name: 8. Upload Hasil Kompilasi
@@ -58,3 +55,4 @@ jobs:
         with:
           name: compiled-firmware
           path: trunk/bin/targets/
+
