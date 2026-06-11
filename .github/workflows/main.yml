@@ -15,16 +15,17 @@ jobs:
       - name: 2. Install Build Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential libncurses5-dev zlib1g-dev gawk git ccache gettext libssl-dev xsltproc wget unzip python3
+          sudo apt-get install -y build-essential libncurses5-dev zlib1g-dev gawk git ccache gettext libssl-dev xsltproc wget unzip python3 subversion
 
       - name: 3. Initialize & Update Submodules
         run: |
           git submodule init
           git submodule update
 
-      - name: 4. Update & Install Feeds
+      - name: 4. Fix SVN Format & Update Feeds
         run: |
           cd trunk
+          svn upgrade
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
@@ -49,4 +50,3 @@ jobs:
         with:
           name: compiled-firmware
           path: trunk/bin/targets/
-
